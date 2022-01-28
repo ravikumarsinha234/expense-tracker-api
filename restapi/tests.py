@@ -26,7 +26,7 @@ class TestModels(TestCase):
 class TestViews(TestCase):
     def test_expense_create(self):
         payload = {
-            "amount": 50,
+            "amount": 50.0,
             "merchant": "AT&T",
             "description": "cell phone subscription",
             "category": "utlities",
@@ -40,7 +40,7 @@ class TestViews(TestCase):
 
         json_res = res.json()
 
-        self.assertEqual(str(payload["amount"]), json_res["amount"])
+        self.assertEqual(payload["amount"], json_res["amount"])
         self.assertEqual(payload["merchant"], json_res["merchant"])
         self.assertEqual(payload["description"], json_res["description"])
         self.assertEqual(payload["category"], json_res["category"])
@@ -57,3 +57,13 @@ class TestViews(TestCase):
 
         expenses = models.Expense.objects.all()
         self.assertEqual(len(expenses), len(json_res))
+
+    def test_expense_create_required_fields_missing(self):
+        payload = {
+            "merchant": "AT&T",
+            "description": "cell phone subscription",
+            "category": "utlities",
+        }
+        res = self.client.post("restapi:expense-list-create", payload, format="json")
+
+        self.assertEqual(404, res.status_code)
